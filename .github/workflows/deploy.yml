@@ -195,14 +195,14 @@ jobs:
           DB_NAME: ${{ steps.config.outputs.db_name }}
           NAME: ${{ steps.config.outputs.name }}
           DESCRIPTION: ${{ steps.config.outputs.description || 'A lightweight personal blogging system' }}
-          AVATAR: ${{ steps.config.outputs.avatar || '' }}
+          AVATAR: ${{ steps.config.outputs.avatar || 'https://maablog.cc.cd/favicon.png' }}
           PAGE_SIZE: ${{ steps.config.outputs.page_size || '5' }}
           RSS_ENABLE: ${{ steps.config.outputs.rss_enable || 'false' }}
           S3_CACHE_FOLDER: ${{ vars.S3_CACHE_FOLDER || 'cache/' }}
           S3_FOLDER: ${{ vars.S3_FOLDER || 'images/' }}
           S3_REGION: ${{ vars.S3_REGION || 'auto' }}
           S3_FORCE_PATH_STYLE: ${{ vars.S3_FORCE_PATH_STYLE || 'false' }}
-          R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME || '' }}
+          R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME || 'rin-media' }}
           S3_ENDPOINT: ${{ vars.S3_ENDPOINT || '' }}
           S3_ACCESS_HOST: ${{ vars.S3_ACCESS_HOST || '' }}
           S3_BUCKET: ${{ vars.S3_BUCKET || '' }}
@@ -214,12 +214,27 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET || '' }}
           WEBHOOK_URL: ${{ vars.WEBHOOK_URL || '' }}
-          RSS_TITLE: ${{ vars.RSS_TITLE || '' }}
-          RSS_DESCRIPTION: ${{ vars.RSS_DESCRIPTION || '' }}
-          FRONTEND_URL: ${{ vars.FRONTEND_URL || '' }}
-          CACHE_STORAGE_MODE: ${{ vars.CACHE_STORAGE_MODE || 's3' }}
+          RSS_TITLE: ${{ vars.RSS_TITLE || 'maabakaa' }}
+          RSS_DESCRIPTION: ${{ vars.RSS_DESCRIPTION || 'maablog' }}
+          FRONTEND_URL: ${{ vars.FRONTEND_URL || 'https://maablog.cc.cd' }}
+          CACHE_STORAGE_MODE: ${{ vars.CACHE_STORAGE_MODE || 'database' }}
         run: |
           set -euo pipefail
+          # Prepare the R2 bucket used by the R2_BUCKET binding. If the API
+          # token lacks R2 permissions, fall back to deploying without the
+          # binding instead of breaking the deployment.
+          R2_NAME="${R2_BUCKET_NAME:-}"
+          if [[ -n "$R2_NAME" ]]; then
+            if bunx wrangler r2 bucket create "$R2_NAME" > /tmp/rin-r2.log 2>&1; then
+              echo "R2 bucket ready: $R2_NAME"
+            elif grep -qiE "already exists|already taken|11009|10009" /tmp/rin-r2.log; then
+              echo "R2 bucket already exists: $R2_NAME"
+            else
+              echo "::warning::R2 bucket could not be prepared; deploying without the R2 binding"
+              cat /tmp/rin-r2.log || true
+              export R2_BUCKET_NAME=""
+            fi
+          fi
           if [[ "${{ needs.prepare.outputs.is_production }}" == "true" ]]; then
             bun run deploy | tee deploy_output.log
           else
