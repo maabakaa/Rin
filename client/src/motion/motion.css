@@ -10,6 +10,10 @@
 
    Content markup is deliberately untouched: cards, titles and pagination
    keep their original structure, they only gain motion attributes.
+
+   The ambient animations (aurora drift, light sweep, card sheen, hero rule)
+   run continuously so a short homepage with a single card still feels alive
+   even when there is nothing to scroll.
    ========================================================================== */
 
 :root {
@@ -17,8 +21,8 @@
      product films, without the overshoot that makes text shimmer. */
   --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --motion-ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
-  --motion-duration: 900ms;
-  --motion-stagger: 64ms;
+  --motion-duration: 1000ms;
+  --motion-stagger: 100ms;
 }
 
 /* Give the aurora a stacking context of its own so z-index:-1 stays behind
@@ -33,9 +37,10 @@ html {
 }
 
 /* --------------------------------------------------------------------------
-   Ambient background: two very soft radial glows drifting behind the cards.
-   The outer parallax layer is driven by JS (scroll progress), the inner glow
-   is a slow CSS animation. Both are transform-only => no repaint.
+   Ambient background: soft radial glows drifting behind the cards, plus a
+   slow diagonal light sweep. The outer parallax layer is driven by JS (scroll
+   progress), the inner layers are CSS animations. Transform-only => no
+   repaint, and all of them keep running while the page is idle.
    -------------------------------------------------------------------------- */
 
 .motion-layer {
@@ -68,11 +73,11 @@ html {
   will-change: transform;
   background: radial-gradient(
     circle at center,
-    rgb(var(--theme-rgb) / 0.15) 0%,
-    rgb(var(--theme-rgb) / 0.055) 38%,
+    rgb(var(--theme-rgb) / 0.22) 0%,
+    rgb(var(--theme-rgb) / 0.09) 38%,
     transparent 68%
   );
-  animation: motion-drift-a 28s ease-in-out infinite alternate;
+  animation: motion-drift-a 16s ease-in-out infinite alternate;
 }
 
 .motion-aurora__blob--a {
@@ -87,25 +92,51 @@ html {
   height: 68vmax;
   background: radial-gradient(
     circle at center,
-    rgb(var(--theme-hover-rgb) / 0.13) 0%,
-    rgb(var(--theme-active-rgb) / 0.05) 40%,
+    rgb(var(--theme-hover-rgb) / 0.2) 0%,
+    rgb(var(--theme-active-rgb) / 0.08) 40%,
     transparent 70%
   );
-  animation: motion-drift-b 36s ease-in-out infinite alternate;
+  animation: motion-drift-b 22s ease-in-out infinite alternate;
+}
+
+.motion-aurora__sweep {
+  position: absolute;
+  top: 12%;
+  left: -60%;
+  width: 62%;
+  height: 56vmax;
+  will-change: transform, opacity;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgb(var(--theme-rgb) / 0.08) 44%,
+    rgb(var(--theme-hover-rgb) / 0.06) 56%,
+    transparent 100%
+  );
+  animation: motion-sweep 18s ease-in-out infinite alternate;
 }
 
 @keyframes motion-drift-a {
-  from { transform: translate3d(-3%, -2%, 0) scale(1); }
-  to   { transform: translate3d(9%, 7%, 0) scale(1.14); }
+  from { transform: translate3d(-6%, -4%, 0) scale(1); }
+  to   { transform: translate3d(14%, 11%, 0) scale(1.18); }
 }
 
 @keyframes motion-drift-b {
-  from { transform: translate3d(4%, 3%, 0) scale(1.08); }
-  to   { transform: translate3d(-7%, -6%, 0) scale(0.96); }
+  from { transform: translate3d(7%, 5%, 0) scale(1.1); }
+  to   { transform: translate3d(-12%, -9%, 0) scale(0.94); }
+}
+
+@keyframes motion-sweep {
+  from { transform: translate3d(0, 0, 0) skewX(-14deg); opacity: 0.45; }
+  to   { transform: translate3d(280%, 12%, 0) skewX(-14deg); opacity: 1; }
 }
 
 [data-color-mode="dark"] .motion-aurora__blob {
-  opacity: 0.62;
+  opacity: 0.92;
+}
+
+[data-color-mode="dark"] .motion-aurora__sweep {
+  opacity: 0.85;
 }
 
 /* --------------------------------------------------------------------------
@@ -117,7 +148,7 @@ html {
   top: 0;
   left: 0;
   width: 100%;
-  height: 2px;
+  height: 3px;
   z-index: 80;
   pointer-events: none;
   opacity: 0;
@@ -151,14 +182,14 @@ html.is-scrolled .motion-progress {
 
 html.motion-enabled [data-reveal] {
   transition:
-    opacity 720ms var(--motion-ease-soft) var(--reveal-delay, 0ms),
+    opacity 780ms var(--motion-ease-soft) var(--reveal-delay, 0ms),
     transform var(--motion-duration) var(--motion-ease) var(--reveal-delay, 0ms),
-    filter 720ms var(--motion-ease-soft) var(--reveal-delay, 0ms);
+    filter 780ms var(--motion-ease-soft) var(--reveal-delay, 0ms);
 }
 
 html.motion-enabled [data-reveal]:not(.is-revealed) {
   opacity: 0;
-  transform: translate3d(0, 30px, 0) scale(0.985);
+  transform: translate3d(0, 46px, 0) scale(0.97);
 }
 
 html.motion-enabled [data-reveal].is-revealed {
@@ -178,18 +209,47 @@ html.motion-enabled [data-reveal="fade"]:not(.is-revealed) {
 
 /* The hero gets a slightly deeper entrance plus a gentle defocus. */
 html.motion-enabled [data-reveal="hero"]:not(.is-revealed) {
-  transform: translate3d(0, 42px, 0) scale(0.975);
-  filter: blur(10px);
+  transform: translate3d(0, 56px, 0) scale(0.965);
+  filter: blur(14px);
 }
 
 /* Scroll-linked hero exit: the wrapper is transformed by JS while the inner
    element keeps its reveal transition, so the two never fight. */
 [data-motion-hero] {
+  position: relative;
+  padding-bottom: 14px;
   will-change: transform, opacity;
 }
 
+/* A continuous light sweep under the page title — visible without scrolling. */
+[data-motion-hero]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 2px;
+  width: 46%;
+  height: 2px;
+  border-radius: 2px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(var(--theme-rgb) / 0.95),
+    rgb(var(--theme-hover-rgb) / 0.8),
+    transparent
+  );
+  will-change: transform, opacity;
+  animation: motion-rule-sweep 6.5s ease-in-out infinite alternate;
+}
+
+@keyframes motion-rule-sweep {
+  from { transform: translate3d(0, 0, 0) scaleX(0.7); opacity: 0.55; }
+  to   { transform: translate3d(118%, 0, 0) scaleX(1.15); opacity: 1; }
+}
+
 /* --------------------------------------------------------------------------
-   Cards: lift, soft shadow, pointer-following sheen, slow image zoom
+   Cards: lift, soft shadow, pointer-following sheen, slow image zoom and a
+   permanent low-contrast light sweep so idle cards still feel alive.
    -------------------------------------------------------------------------- */
 
 .motion-card {
@@ -203,6 +263,27 @@ html.motion-enabled [data-reveal="hero"]:not(.is-revealed) {
     background-color 640ms var(--motion-ease-soft);
 }
 
+.motion-card::before {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgb(var(--theme-rgb) / 0.1) 50%,
+    transparent 62%
+  );
+  will-change: transform, opacity;
+  animation: motion-card-sheen 9s ease-in-out infinite;
+}
+
+@keyframes motion-card-sheen {
+  0%, 100% { transform: translate3d(-32%, 0, 0); opacity: 0.35; }
+  50%      { transform: translate3d(32%, 0, 0); opacity: 0.9; }
+}
+
 .motion-card::after {
   content: "";
   position: absolute;
@@ -213,7 +294,7 @@ html.motion-enabled [data-reveal="hero"]:not(.is-revealed) {
   opacity: 0;
   background: radial-gradient(
     420px circle at var(--mx, 50%) var(--my, 50%),
-    rgb(var(--theme-rgb) / 0.13),
+    rgb(var(--theme-rgb) / 0.2),
     transparent 46%
   );
   transition: opacity 420ms var(--motion-ease-soft);
@@ -225,10 +306,10 @@ html.motion-enabled [data-reveal="hero"]:not(.is-revealed) {
 
 @media (hover: hover) and (pointer: fine) {
   .motion-card-wrap:hover .motion-card {
-    transform: translate3d(0, -7px, 0) scale(1.006);
+    transform: translate3d(0, -12px, 0) scale(1.012);
     box-shadow:
-      0 26px 60px rgb(15 23 42 / 0.13),
-      0 4px 14px rgb(15 23 42 / 0.06);
+      0 32px 70px rgb(15 23 42 / 0.18),
+      0 6px 18px rgb(15 23 42 / 0.08);
   }
 
   .motion-card-wrap:hover .motion-card::after {
@@ -236,23 +317,26 @@ html.motion-enabled [data-reveal="hero"]:not(.is-revealed) {
   }
 
   .motion-card-wrap:hover .motion-card__image {
-    transform: scale(1.055);
+    transform: scale(1.08);
   }
 
   /* A crisp, short press response instead of a long eased one. */
   .motion-card-wrap:active .motion-card {
-    transform: translate3d(0, -2px, 0) scale(0.997);
+    transform: translate3d(0, -3px, 0) scale(0.996);
     transition-duration: 140ms;
   }
 }
 
 [data-color-mode="dark"] .motion-card-wrap:hover .motion-card {
   box-shadow:
-    0 26px 64px rgb(0 0 0 / 0.46),
-    0 4px 16px rgb(0 0 0 / 0.28);
+    0 32px 74px rgb(0 0 0 / 0.55),
+    0 6px 20px rgb(0 0 0 / 0.32);
 }
 
-/* Links and buttons inherit one consistent, quick-but-soft response. */
+/* --------------------------------------------------------------------------
+   Links and buttons inherit one consistent, quick-but-soft response.
+   -------------------------------------------------------------------------- */
+
 html.motion-enabled a,
 html.motion-enabled button {
   -webkit-tap-highlight-color: transparent;
@@ -263,7 +347,10 @@ html.motion-enabled button {
    -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .motion-aurora__blob {
+  .motion-aurora__blob,
+  .motion-aurora__sweep,
+  .motion-card::before,
+  [data-motion-hero]::after {
     animation: none !important;
   }
 
@@ -287,6 +374,11 @@ html.motion-enabled button {
 
 html.motion-off .motion-aurora,
 html.motion-off .motion-progress {
+  display: none;
+}
+
+html.motion-off .motion-card::before,
+html.motion-off [data-motion-hero]::after {
   display: none;
 }
 

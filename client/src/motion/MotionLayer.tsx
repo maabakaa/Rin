@@ -39,6 +39,7 @@ export function MotionLayer() {
         <div className="motion-aurora__parallax" data-motion-parallax="b">
           <span className="motion-aurora__blob motion-aurora__blob--b" />
         </div>
+        <span className="motion-aurora__sweep" />
       </div>
       <div className="motion-progress">
         <span className="motion-progress__bar" data-motion-progress="" />

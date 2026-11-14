@@ -19,7 +19,7 @@ type Cleanup = () => void;
 const REVEAL_SELECTOR = "[data-reveal]";
 const GROUP_SELECTOR = "[data-reveal-group]";
 const AUTO_REVEAL_SELECTOR = "main, footer";
-const STAGGER_MS = 64;
+const STAGGER_MS = 100;
 const MAX_STAGGER_STEPS = 9;
 
 /** Elements whose own scrolling must never be intercepted. */
