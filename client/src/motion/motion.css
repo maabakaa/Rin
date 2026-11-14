@@ -1,0 +1,297 @@
+/* ==========================================================================
+   Rin Motion System
+   --------------------------------------------------------------------------
+   A compositor-only animation layer. Everything animates with transform /
+   opacity so the browser can keep the work on the GPU and never re-layout.
+
+   Progressive enhancement: nothing is hidden until the JS engine adds
+   `html.motion-enabled`. If JS fails to load (or ?motion=off is used), the
+   site renders exactly as before.
+
+   Content markup is deliberately untouched: cards, titles and pagination
+   keep their original structure, they only gain motion attributes.
+   ========================================================================== */
+
+:root {
+  /* A fast-out curve with a soft landing; close to the easing Apple uses in
+     product films, without the overshoot that makes text shimmer. */
+  --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-duration: 900ms;
+  --motion-stagger: 64ms;
+}
+
+/* Give the aurora a stacking context of its own so z-index:-1 stays behind
+   the content but in front of the body background. */
+#root {
+  position: relative;
+  z-index: 0;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Ambient background: two very soft radial glows drifting behind the cards.
+   The outer parallax layer is driven by JS (scroll progress), the inner glow
+   is a slow CSS animation. Both are transform-only => no repaint.
+   -------------------------------------------------------------------------- */
+
+.motion-layer {
+  /* Intentionally no positioning / opacity / transform here: the children
+     need to escape into their own stacking contexts. */
+  display: contents;
+}
+
+.motion-aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+}
+
+.motion-aurora__parallax {
+  position: absolute;
+  inset: -12%;
+  will-change: transform;
+}
+
+.motion-aurora__blob {
+  position: absolute;
+  display: block;
+  width: 74vmax;
+  height: 74vmax;
+  border-radius: 50%;
+  will-change: transform;
+  background: radial-gradient(
+    circle at center,
+    rgb(var(--theme-rgb) / 0.15) 0%,
+    rgb(var(--theme-rgb) / 0.055) 38%,
+    transparent 68%
+  );
+  animation: motion-drift-a 28s ease-in-out infinite alternate;
+}
+
+.motion-aurora__blob--a {
+  top: -30%;
+  left: -14%;
+}
+
+.motion-aurora__blob--b {
+  right: -16%;
+  bottom: -38%;
+  width: 68vmax;
+  height: 68vmax;
+  background: radial-gradient(
+    circle at center,
+    rgb(var(--theme-hover-rgb) / 0.13) 0%,
+    rgb(var(--theme-active-rgb) / 0.05) 40%,
+    transparent 70%
+  );
+  animation: motion-drift-b 36s ease-in-out infinite alternate;
+}
+
+@keyframes motion-drift-a {
+  from { transform: translate3d(-3%, -2%, 0) scale(1); }
+  to   { transform: translate3d(9%, 7%, 0) scale(1.14); }
+}
+
+@keyframes motion-drift-b {
+  from { transform: translate3d(4%, 3%, 0) scale(1.08); }
+  to   { transform: translate3d(-7%, -6%, 0) scale(0.96); }
+}
+
+[data-color-mode="dark"] .motion-aurora__blob {
+  opacity: 0.62;
+}
+
+/* --------------------------------------------------------------------------
+   Scroll progress hairline
+   -------------------------------------------------------------------------- */
+
+.motion-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  z-index: 80;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 320ms var(--motion-ease-soft);
+}
+
+html.is-scrolled .motion-progress {
+  opacity: 1;
+}
+
+.motion-progress__bar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform;
+  background: linear-gradient(
+    90deg,
+    rgb(var(--theme-rgb) / 0.95),
+    rgb(var(--theme-hover-rgb) / 0.8)
+  );
+}
+
+/* --------------------------------------------------------------------------
+   Scroll reveal (one frame at a time, staggered by the engine)
+
+   The engine assigns --reveal-delay to children of [data-reveal-group], so
+   the "one box after another" rhythm needs no per-card React state.
+   -------------------------------------------------------------------------- */
+
+html.motion-enabled [data-reveal] {
+  transition:
+    opacity 720ms var(--motion-ease-soft) var(--reveal-delay, 0ms),
+    transform var(--motion-duration) var(--motion-ease) var(--reveal-delay, 0ms),
+    filter 720ms var(--motion-ease-soft) var(--reveal-delay, 0ms);
+}
+
+html.motion-enabled [data-reveal]:not(.is-revealed) {
+  opacity: 0;
+  transform: translate3d(0, 30px, 0) scale(0.985);
+}
+
+html.motion-enabled [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+html.motion-enabled [data-reveal].is-armed {
+  will-change: opacity, transform, filter;
+}
+
+/* Page-level containers only fade: no second layer of movement. */
+html.motion-enabled [data-reveal="fade"]:not(.is-revealed) {
+  transform: none;
+}
+
+/* The hero gets a slightly deeper entrance plus a gentle defocus. */
+html.motion-enabled [data-reveal="hero"]:not(.is-revealed) {
+  transform: translate3d(0, 42px, 0) scale(0.975);
+  filter: blur(10px);
+}
+
+/* Scroll-linked hero exit: the wrapper is transformed by JS while the inner
+   element keeps its reveal transition, so the two never fight. */
+[data-motion-hero] {
+  will-change: transform, opacity;
+}
+
+/* --------------------------------------------------------------------------
+   Cards: lift, soft shadow, pointer-following sheen, slow image zoom
+   -------------------------------------------------------------------------- */
+
+.motion-card {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  transition:
+    transform 640ms var(--motion-ease),
+    box-shadow 640ms var(--motion-ease-soft),
+    border-color 640ms var(--motion-ease-soft),
+    background-color 640ms var(--motion-ease-soft);
+}
+
+.motion-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    rgb(var(--theme-rgb) / 0.13),
+    transparent 46%
+  );
+  transition: opacity 420ms var(--motion-ease-soft);
+}
+
+.motion-card__image {
+  transition: transform 1000ms var(--motion-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .motion-card-wrap:hover .motion-card {
+    transform: translate3d(0, -7px, 0) scale(1.006);
+    box-shadow:
+      0 26px 60px rgb(15 23 42 / 0.13),
+      0 4px 14px rgb(15 23 42 / 0.06);
+  }
+
+  .motion-card-wrap:hover .motion-card::after {
+    opacity: 1;
+  }
+
+  .motion-card-wrap:hover .motion-card__image {
+    transform: scale(1.055);
+  }
+
+  /* A crisp, short press response instead of a long eased one. */
+  .motion-card-wrap:active .motion-card {
+    transform: translate3d(0, -2px, 0) scale(0.997);
+    transition-duration: 140ms;
+  }
+}
+
+[data-color-mode="dark"] .motion-card-wrap:hover .motion-card {
+  box-shadow:
+    0 26px 64px rgb(0 0 0 / 0.46),
+    0 4px 16px rgb(0 0 0 / 0.28);
+}
+
+/* Links and buttons inherit one consistent, quick-but-soft response. */
+html.motion-enabled a,
+html.motion-enabled button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   Respect the OS setting, low-power mode and the ?motion=off escape hatch.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-aurora__blob {
+    animation: none !important;
+  }
+
+  html.motion-enabled [data-reveal],
+  .motion-card,
+  .motion-card::after,
+  .motion-card__image {
+    transition: none !important;
+  }
+
+  html.motion-enabled [data-reveal]:not(.is-revealed) {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .motion-progress {
+    transition: none;
+  }
+}
+
+html.motion-off .motion-aurora,
+html.motion-off .motion-progress {
+  display: none;
+}
+
+html.motion-off .ani-show,
+html.motion-off .ani-show-fast,
+html.motion-off .popup-content {
+  animation: none;
+}

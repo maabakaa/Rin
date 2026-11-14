@@ -5,6 +5,7 @@ import 'remixicon/fonts/remixicon.css'
 import App from './App'
 import './index.css'
 import './components.css'
+import './motion/motion.css'
 import { GlobalErrorBoundary } from './components/error-boundary.tsx'
 import { bootstrapApp } from './app/bootstrap'
 

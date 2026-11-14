@@ -17,20 +17,43 @@ export function Header({ children }: { children?: React.ReactNode }) {
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
-    const onScroll = () => {
+    let ticking = false;
+    let frame = 0;
+    let atTop = true;
+    let revealed = true;
+
+    const update = () => {
+      ticking = false;
       const currentScrollY = window.scrollY;
       const nearTop = currentScrollY <= 24;
       const scrollingUp = currentScrollY < lastScrollY;
-      setIsAtTop(nearTop);
-      setIsRevealed(headerBehavior !== "reveal" || nearTop || scrollingUp);
+      const nextRevealed = headerBehavior !== "reveal" || nearTop || scrollingUp;
+
+      // Coalesced to one rAF and only commit state when a boolean flips:
+      // the header must never re-render on every scroll frame.
+      if (nearTop !== atTop) {
+        atTop = nearTop;
+        setIsAtTop(atTop);
+      }
+      if (nextRevealed !== revealed) {
+        revealed = nextRevealed;
+        setIsRevealed(revealed);
+      }
       lastScrollY = currentScrollY;
     };
 
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      frame = requestAnimationFrame(update);
+    };
+
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+    update();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
     };
   }, [headerBehavior]);
 
@@ -64,7 +87,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
   const containerClassName =
     !useTopHeader || headerBehavior === "static"
       ? "relative z-40"
-      : `fixed inset-x-0 top-0 z-40 transition-transform duration-300 ${
+      : `fixed inset-x-0 top-0 z-40 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           headerBehavior === "reveal" && !isRevealed ? "-translate-y-full" : "translate-y-0"
         }`;
   const spacerClassName = !useTopHeader || headerBehavior === "static" ? "h-0" : "h-20";

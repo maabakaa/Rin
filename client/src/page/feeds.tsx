@@ -37,7 +37,11 @@ export function FeedsPage() {
     })
     const page = tryInt(1, query.get("page"))
     const limit = tryInt(siteConfig.pageSize, query.get("limit"))
-    const feedListClass = siteConfig.feedLayout === "masonry" ? "wauto columns-1 gap-5 ani-show md:columns-2" : "wauto flex flex-col ani-show";
+    // `ani-show` was a single one-shot animation on the whole list. The motion
+    // layer now staggers each card instead; content and layout stay identical.
+    const feedListClass = siteConfig.feedLayout === "masonry"
+        ? "wauto columns-1 gap-5 md:columns-2"
+        : "wauto flex flex-col";
     const currentFeeds = feeds[listState] ?? { size: 0, data: [], hasNext: false };
     const currentFeedData = Array.isArray(currentFeeds.data) ? currentFeeds.data : [];
     const ref = useRef("")
@@ -79,33 +83,35 @@ export function FeedsPage() {
             </Helmet>
             <Waiting for={feeds.draft.size + feeds.normal.size + feeds.unlisted.size > 0 || status === 'idle'}>
                 <main className="w-full flex flex-col justify-center items-center mb-8">
-                    <div className="wauto text-start text-black dark:text-white py-4 text-4xl font-bold">
-                        <p>
-                            {listState === 'draft' ? t('draft_bin') : listState === 'normal' ? t('article.title') : t('unlisted')}
-                        </p>
-                        <div className="flex flex-row justify-between">
-                            <p className="text-sm mt-4 text-neutral-500 font-normal">
-                                {t('article.total$count', { count: currentFeeds.size })}
+                    <div className="wauto text-start text-black dark:text-white py-4 text-4xl font-bold" data-motion-hero>
+                        <div data-reveal="hero">
+                            <p>
+                                {listState === 'draft' ? t('draft_bin') : listState === 'normal' ? t('article.title') : t('unlisted')}
                             </p>
-                            {profile?.permission &&
-                                <div className="flex flex-row space-x-4">
-                                    <Link href={listState === 'draft' ? '/?type=normal' : '/?type=draft'} className={`text-sm mt-4 text-neutral-500 font-normal ${listState === 'draft' ? "text-theme" : ""}`}>
-                                        {t('draft_bin')}
-                                    </Link>
-                                    <Link href={listState === 'unlisted' ? '/?type=normal' : '/?type=unlisted'} className={`text-sm mt-4 text-neutral-500 font-normal ${listState === 'unlisted' ? "text-theme" : ""}`}>
-                                        {t('unlisted')}
-                                    </Link>
-                                </div>
-                            }
+                            <div className="flex flex-row justify-between">
+                                <p className="text-sm mt-4 text-neutral-500 font-normal">
+                                    {t('article.total$count', { count: currentFeeds.size })}
+                                </p>
+                                {profile?.permission &&
+                                    <div className="flex flex-row space-x-4">
+                                        <Link href={listState === 'draft' ? '/?type=normal' : '/?type=draft'} className={`text-sm mt-4 text-neutral-500 font-normal ${listState === 'draft' ? "text-theme" : ""}`}>
+                                            {t('draft_bin')}
+                                        </Link>
+                                        <Link href={listState === 'unlisted' ? '/?type=normal' : '/?type=unlisted'} className={`text-sm mt-4 text-neutral-500 font-normal ${listState === 'unlisted' ? "text-theme" : ""}`}>
+                                            {t('unlisted')}
+                                        </Link>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                     <Waiting for={status === 'idle'}>
-                        <div className={feedListClass}>
+                        <div className={feedListClass} data-reveal-group="">
                             {currentFeedData.map(({ id, ...feed }: any) => (
                                 <FeedCard key={id} id={id} {...feed} />
                             ))}
                         </div>
-                        <div className="wauto flex flex-row items-center mt-4 ani-show">
+                        <div className="wauto flex flex-row items-center mt-4" data-reveal="fade">
                             {page > 1 &&
                                 <Link href={`/?type=${listState}&page=${(page - 1)}`}
                                     className={`text-sm font-normal rounded-full px-4 py-2 text-white bg-theme`}>

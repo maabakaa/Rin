@@ -55,7 +55,7 @@ function FeedCardImage({ src, variant }: { src: string; variant: FeedCardVariant
                 height={height}
                 onLoad={onLoad}
                 onError={onError}
-                className={`absolute inset-0 h-full w-full object-cover object-center hover:scale-105 translation duration-300 ${failed || (blurhash && !loaded) ? "opacity-0" : "opacity-100"
+                className={`motion-card__image absolute inset-0 h-full w-full object-cover object-center ${failed || (blurhash && !loaded) ? "opacity-0" : "opacity-100"
                     }`}
             />
         </div>
@@ -110,7 +110,7 @@ export function FeedCard({ id, title, avatar, draft, listed, top, summary, hasht
     const activeVariant = normalizeFeedCardVariant(variant ?? siteConfig.feedCardVariant);
     const styles = FEED_CARD_STYLES[activeVariant];
     const body = (
-        <div className={styles.card}>
+        <div className={`motion-card ${styles.card}`}>
             {avatar ? (
                 <div className={styles.imageWrap}>
                     <FeedCardImage src={avatar} variant={activeVariant} />
@@ -145,5 +145,17 @@ export function FeedCard({ id, title, avatar, draft, listed, top, summary, hasht
         </div>
     );
 
-    return preview ? body : <Link href={`/feed/${id}`} target="_blank" rel="noopener noreferrer" className="block min-w-0 w-full">{body}</Link>;
+    // The outer link owns the scroll reveal; the inner card owns the hover
+    // transform. Keeping them on separate elements avoids transform conflicts.
+    return preview ? body : (
+        <Link
+            href={`/feed/${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="motion-card-wrap block min-w-0 w-full"
+            data-reveal="card"
+        >
+            {body}
+        </Link>
+    );
 }
