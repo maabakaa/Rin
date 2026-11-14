@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import { useContext } from "react";
 import type { DefaultParams, PathPattern } from "wouter";
 import { Route, Switch } from "wouter";
@@ -8,28 +8,43 @@ import { Header } from "../components/header";
 import { Padding } from "../components/padding";
 import { getHeaderLayoutDefinition } from "../components/site-header/layout-registry";
 import { Tips, TipsPage } from "../components/tips";
+import { TOCHeader } from "../components/toc-header";
 import useTableOfContents from "../hooks/useTableOfContents";
 import { useSiteConfig } from "../hooks/useSiteConfig";
-import { CallbackPage } from "../page/callback";
-import { CompatTasksPage } from "../page/compat-tasks";
 import { ErrorPage } from "../page/error";
-import { FeedPage, TOCHeader } from "../page/feed";
 import { FeedsPage } from "../page/feeds";
-import { FriendsPage } from "../page/friends";
-import { HealthPage } from "../page/health";
-import { HashtagPage } from "../page/hashtag";
-import { HashtagsPage } from "../page/hashtags";
-import { LoginPage } from "../page/login";
-import { MomentsPage } from "../page/moments";
-import { ProfilePage } from "../page/profile";
-import { QueueStatusPage } from "../page/queue-status";
-import { SearchPage } from "../page/search";
-import { Settings } from "../page/settings";
-import { TimelinePage } from "../page/timeline";
-import { WritingPage } from "../page/writing";
 import { ProfileContext } from "../state/profile";
 import { tryInt } from "../utils/int";
 import { useTranslation } from "react-i18next";
+
+// Heavier pages pull in the Monaco editor, the Markdown renderer, mermaid,
+// syntax highlighting and the lightbox. Loading them only when visited keeps
+// the homepage bundle small. FeedsPage and ErrorPage stay eager: they are the
+// first paint and the permission/404 fallback.
+const CallbackPage = lazy(() => import("../page/callback").then((m) => ({ default: m.CallbackPage })));
+const CompatTasksPage = lazy(() => import("../page/compat-tasks").then((m) => ({ default: m.CompatTasksPage })));
+const FeedPage = lazy(() => import("../page/feed").then((m) => ({ default: m.FeedPage })));
+const FriendsPage = lazy(() => import("../page/friends").then((m) => ({ default: m.FriendsPage })));
+const HealthPage = lazy(() => import("../page/health").then((m) => ({ default: m.HealthPage })));
+const HashtagPage = lazy(() => import("../page/hashtag").then((m) => ({ default: m.HashtagPage })));
+const HashtagsPage = lazy(() => import("../page/hashtags").then((m) => ({ default: m.HashtagsPage })));
+const LoginPage = lazy(() => import("../page/login").then((m) => ({ default: m.LoginPage })));
+const MomentsPage = lazy(() => import("../page/moments").then((m) => ({ default: m.MomentsPage })));
+const ProfilePage = lazy(() => import("../page/profile").then((m) => ({ default: m.ProfilePage })));
+const QueueStatusPage = lazy(() => import("../page/queue-status").then((m) => ({ default: m.QueueStatusPage })));
+const SearchPage = lazy(() => import("../page/search").then((m) => ({ default: m.SearchPage })));
+const Settings = lazy(() => import("../page/settings").then((m) => ({ default: m.Settings })));
+const TimelinePage = lazy(() => import("../page/timeline").then((m) => ({ default: m.TimelinePage })));
+const WritingPage = lazy(() => import("../page/writing").then((m) => ({ default: m.WritingPage })));
+
+function PageFallback() {
+  return (
+    <div
+      className="w-full min-h-[260px] animate-pulse rounded-2xl bg-neutral-100 dark:bg-neutral-800"
+      aria-hidden="true"
+    />
+  );
+}
 
 export function AppRoutes() {
   const { t } = useTranslation();
@@ -161,7 +176,11 @@ function AppRoute({
 
         return layoutDefinition.renderRouteShell({
           header: <Header>{headerComponent}</Header>,
-          content: <Padding className={paddingClassName}>{resolvedContent}</Padding>,
+          content: (
+            <Padding className={paddingClassName}>
+              <Suspense fallback={<PageFallback />}>{resolvedContent}</Suspense>
+            </Padding>
+          ),
           footer: <Footer />,
           paddingClassName,
         });
@@ -192,7 +211,9 @@ function AdminRoute({
     <Route path={path}>
       {(params) => (
         <AdminLayout title={title} description={description}>
-          {typeof content === "function" ? content(params) : content}
+          <Suspense fallback={<PageFallback />}>
+            {typeof content === "function" ? content(params) : content}
+          </Suspense>
         </AdminLayout>
       )}
     </Route>
