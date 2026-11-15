@@ -225,7 +225,8 @@ html.motion-enabled [data-reveal="hero"]:not(.is-revealed) {
 [data-motion-hero]::after {
   content: "";
   position: absolute;
-  left: 0;
+  left: 50%;
+  margin-left: -23%;
   bottom: 2px;
   width: 46%;
   height: 2px;
@@ -239,12 +240,15 @@ html.motion-enabled [data-reveal="hero"]:not(.is-revealed) {
     transparent
   );
   will-change: transform, opacity;
-  animation: motion-rule-sweep 6.5s ease-in-out infinite alternate;
+  animation: motion-rule-sweep 6.5s ease-in-out infinite;
 }
 
 @keyframes motion-rule-sweep {
-  from { transform: translate3d(0, 0, 0) scaleX(0.7); opacity: 0.55; }
-  to   { transform: translate3d(118%, 0, 0) scaleX(1.15); opacity: 1; }
+  0%,
+  50%,
+  100% { transform: translate3d(0, 0, 0) scaleX(0.7); opacity: 0.55; }
+  25%  { transform: translate3d(58%, 0, 0) scaleX(1.1); opacity: 1; }
+  75%  { transform: translate3d(-58%, 0, 0) scaleX(1.1); opacity: 1; }
 }
 
 /* --------------------------------------------------------------------------
