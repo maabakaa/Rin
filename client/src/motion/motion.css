@@ -247,8 +247,8 @@ html.motion-enabled [data-reveal="hero"]:not(.is-revealed) {
   0%,
   50%,
   100% { transform: translate3d(0, 0, 0) scaleX(0.7); opacity: 0.55; }
-  25%  { transform: translate3d(58%, 0, 0) scaleX(1.1); opacity: 1; }
-  75%  { transform: translate3d(-58%, 0, 0) scaleX(1.1); opacity: 1; }
+  25%  { transform: translate3d(-58%, 0, 0) scaleX(1.1); opacity: 1; }
+  75%  { transform: translate3d(58%, 0, 0) scaleX(1.1); opacity: 1; }
 }
 
 /* --------------------------------------------------------------------------
