@@ -14,7 +14,7 @@ export const compactLayoutDefinition: HeaderLayoutDefinition = {
             siteConfig={siteConfig}
             compact
             className="min-w-0 flex items-center"
-            avatarClassName="h-20 w-20 rounded-full"
+            avatarClassName="h-20 w-20 rounded-full transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-translate-y-2 group-hover:scale-[1.2] group-active:scale-95"
             titleClassName="text-lg font-bold tracking-tight text-neutral-900 dark:text-neutral-50"
             showDescription={false}
           />
@@ -40,7 +40,7 @@ export const compactLayoutDefinition: HeaderLayoutDefinition = {
         isAtTop={isAtTop}
         showDescription={false}
         showInlineNav
-        avatarClassName="h-12 w-12 rounded-lg"
+        avatarClassName="h-12 w-12 rounded-lg transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-translate-y-1 group-hover:scale-[1.15] group-active:scale-95"
       />
     );
   },

@@ -49,9 +49,9 @@ export function AdminLayout({
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 lg:flex-row lg:px-6">
         <aside className="w-full shrink-0 lg:sticky lg:top-6 lg:w-72 lg:self-start">
           <div className="rounded-2xl border border-black/10 bg-w p-5 dark:border-white/10">
-            <Link href="/" className="flex items-center gap-4 rounded-xl px-2 py-2 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5">
+            <Link href="/" className="group flex items-center gap-4 rounded-xl px-2 py-2 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5">
               {siteConfig.avatar ? (
-                <ImageWithFallback src={siteConfig.avatar} alt={siteConfig.name} className="h-20 w-20 rounded-3xl border border-black/10 dark:border-white/10" imageClassName={darkInvertImageClass(siteConfig.avatar)} />
+                <ImageWithFallback src={siteConfig.avatar} alt={siteConfig.name} className="h-20 w-20 rounded-3xl border border-black/10 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-translate-y-2 group-hover:scale-[1.18] group-active:scale-95 dark:border-white/10" imageClassName={darkInvertImageClass(siteConfig.avatar)} />
               ) : null}
               <div className="min-w-0">
                 <p className="truncate text-base font-semibold t-primary">{siteConfig.name}</p>
