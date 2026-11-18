@@ -23,12 +23,12 @@ export function BrandLink({
   descriptionClassName?: string;
 }) {
   return (
-    <Link aria-label="home" href="/" className={className}>
+    <Link aria-label="home" href="/" className={`${className} group`}>
       {showAvatar && siteConfig.avatar ? (
         <ImageWithFallback
           src={siteConfig.avatar}
           alt={siteConfig.name}
-          className={avatarClassName || (compact ? "h-14 w-14 rounded-full border-2" : "h-16 w-16 rounded-2xl border-2")}
+          className={avatarClassName || (compact ? "h-16 w-16 rounded-full border-2" : "h-16 w-16 rounded-2xl border-2") + " transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-translate-y-1 group-hover:scale-[1.12] group-active:scale-95"}
           imageClassName={darkInvertImageClass(siteConfig.avatar)}
         />
       ) : null}

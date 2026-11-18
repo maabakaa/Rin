@@ -56,7 +56,7 @@ export function SearchButton({ className, onClose, plain = false }: { className?
         aria-label={label}
         className={
           plain
-            ? "flex aspect-[1] items-center justify-center px-1.5 text-neutral-500 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+            ? "flex aspect-[1] items-center justify-center rounded-full px-1.5 text-neutral-500 transition-all duration-300 hover:scale-110 hover:bg-black/5 hover:text-neutral-900 active:scale-90 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-neutral-100"
             : "flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button"
         }
       >
@@ -97,7 +97,7 @@ export function LanguageSwitch({ className, plain = false, popoverUp = false }: 
             aria-label="Languages"
             className={
               plain
-                ? "flex aspect-[1] items-center justify-center px-1.5 text-neutral-500 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+                ? "flex aspect-[1] items-center justify-center rounded-full px-1.5 text-neutral-500 transition-all duration-300 hover:scale-110 hover:bg-black/5 hover:text-neutral-900 active:scale-90 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-neutral-100"
                 : "flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button"
             }
           >
@@ -161,7 +161,7 @@ export function UserAvatar({
               aria-label={t("profile.title")}
               className={
                 plain
-                  ? "group flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-neutral-500 transition-all hover:bg-black/5 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-neutral-100"
+                  ? "group flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-neutral-500 transition-all duration-300 hover:scale-110 hover:bg-black/5 hover:text-neutral-900 active:scale-90 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-neutral-100"
                   : "flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-black/10 bg-w dark:border-white/10"
               }
             >
@@ -232,12 +232,12 @@ export function UserAvatar({
           title={label}
           aria-label={label}
           className={
-            plain
-              ? "flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-black/5 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-neutral-100"
+          plain
+              ? "flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition-all duration-300 hover:scale-110 hover:bg-black/5 hover:text-neutral-900 active:scale-90 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-neutral-100"
               : "flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button"
-          }
-        >
-          <i className="ri-user-received-line" />
+        }
+      >
+        <i className="ri-user-received-line" />
         </button>
       )}
     </div>
