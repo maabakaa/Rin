@@ -153,7 +153,7 @@ function Spliter() {
 
 function ThemeButton({ current, mode, label, icon, onClick }: { current: ThemeMode, label: string, mode: ThemeMode, icon: string, onClick: (mode: ThemeMode) => void }) {
     return (<button aria-label={label} type="button" onClick={() => onClick(mode)}
-        className={`rounded-inherit inline-flex h-[32px] w-[32px] items-center justify-center border-0 t-primary ${current === mode ? "bg-w rounded-full shadow-xl shadow-light" : ""}`}>
+        className={`rounded-inherit inline-flex h-[32px] w-[32px] items-center justify-center rounded-full border-0 t-primary transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-125 hover:-translate-y-0.5 hover:bg-black/5 active:scale-90 dark:hover:bg-white/10 ${current === mode ? "bg-w rounded-full shadow-xl shadow-light" : ""}`}>
         <i className={`${icon}`} />
     </button>)
 }
