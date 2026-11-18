@@ -195,7 +195,7 @@ jobs:
           DB_NAME: ${{ steps.config.outputs.db_name }}
           NAME: ${{ steps.config.outputs.name }}
           DESCRIPTION: ${{ steps.config.outputs.description || 'A lightweight personal blogging system' }}
-          AVATAR: ${{ steps.config.outputs.avatar || 'https://maablog.cc.cd/avatar.jpg' }}
+          AVATAR: ${{ steps.config.outputs.avatar || 'https://maablog.cc.cd/avatar.webp' }}
           PAGE_SIZE: ${{ steps.config.outputs.page_size || '5' }}
           RSS_ENABLE: ${{ steps.config.outputs.rss_enable || 'false' }}
           S3_CACHE_FOLDER: ${{ vars.S3_CACHE_FOLDER || 'cache/' }}
