@@ -94,10 +94,10 @@ export function FeedsPage() {
                                 </p>
                                 {profile?.permission &&
                                     <div className="flex flex-row space-x-4">
-                                        <Link href={listState === 'draft' ? '/?type=normal' : '/?type=draft'} className={`text-sm mt-4 text-neutral-500 font-normal ${listState === 'draft' ? "text-theme" : ""}`}>
+                                        <Link href={listState === 'draft' ? '/?type=normal' : '/?type=draft'} className={`inline-block text-sm mt-4 text-neutral-500 font-normal transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.15] hover:-translate-y-px hover:text-theme active:scale-95 ${listState === 'draft' ? "text-theme" : ""}`}>
                                             {t('draft_bin')}
                                         </Link>
-                                        <Link href={listState === 'unlisted' ? '/?type=normal' : '/?type=unlisted'} className={`text-sm mt-4 text-neutral-500 font-normal ${listState === 'unlisted' ? "text-theme" : ""}`}>
+                                        <Link href={listState === 'unlisted' ? '/?type=normal' : '/?type=unlisted'} className={`inline-block text-sm mt-4 text-neutral-500 font-normal transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.15] hover:-translate-y-px hover:text-theme active:scale-95 ${listState === 'unlisted' ? "text-theme" : ""}`}>
                                             {t('unlisted')}
                                         </Link>
                                     </div>
