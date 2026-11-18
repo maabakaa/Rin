@@ -45,7 +45,7 @@ function NavItem({
   return when ? (
     <Link
       href={href}
-      className={`${menu ? "" : "hidden"} md:block cursor-pointer transition-all duration-300 hover:scale-105 hover:text-theme px-2 py-4 md:p-4 text-sm ${
+      className={`${menu ? "" : "hidden"} md:block cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.15] hover:-translate-y-px hover:text-theme px-2 py-4 md:p-4 text-sm ${
         selected ? "text-theme" : "dark:text-white"
       } ${itemClassName}`}
       state={{ animate: true }}
