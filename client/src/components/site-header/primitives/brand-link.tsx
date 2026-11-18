@@ -28,7 +28,7 @@ export function BrandLink({
         <ImageWithFallback
           src={siteConfig.avatar}
           alt={siteConfig.name}
-          className={avatarClassName || (compact ? "h-10 w-10 rounded-full border-2" : "h-12 w-12 rounded-2xl border-2")}
+          className={avatarClassName || (compact ? "h-14 w-14 rounded-full border-2" : "h-16 w-16 rounded-2xl border-2")}
           imageClassName={darkInvertImageClass(siteConfig.avatar)}
         />
       ) : null}
