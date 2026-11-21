@@ -15,24 +15,9 @@
 }
 
 body {
-  background-color: #fdd835;
-  background-image: linear-gradient(160deg, #fff9c4 0%, #ffee58 30%, #fdd835 62%, #fbc02d 100%);
-  background-attachment: fixed;
+  background: rgb(var(--rin-canvas-rgb));
   color: rgb(var(--rin-text-rgb));
   font-family: Cantarell, "Source Han Serif CN VF", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif !important;
-}
-
-[data-color-mode="dark"] body {
-  background-color: rgb(var(--rin-canvas-rgb));
-  background-image: none;
-}
-
-html {
-  background-color: #fdd835;
-}
-
-[data-color-mode="dark"] html {
-  background-color: #1c1c1e;
 }
 
 textarea:focus {

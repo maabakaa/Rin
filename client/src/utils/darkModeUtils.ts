@@ -4,7 +4,7 @@ export function listenSystemMode() {
   const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
   function darkModeHandler() {
-    const mode = localStorage.getItem("theme-mode");
+    const mode = localStorage.getItem("theme");
     if (mode === null || mode === "system") {
       if (mediaQuery.matches) {
         document.documentElement.setAttribute("data-color-mode", "dark");

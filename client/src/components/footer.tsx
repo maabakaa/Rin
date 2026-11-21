@@ -19,7 +19,7 @@ function Footer() {
     const loginEnabled = config.getBoolean('login.enabled');
     const [doubleClickTimes, setDoubleClickTimes] = useState(0);
     useEffect(() => {
-        const mode = localStorage.getItem('theme-mode') as ThemeMode || 'light';
+        const mode = localStorage.getItem('theme') as ThemeMode || 'system';
         setModeState(mode);
         setMode(mode);
     }, [])
@@ -66,10 +66,10 @@ function Footer() {
 
     const setMode = (mode: ThemeMode) => {
         setModeState(mode);
-        localStorage.setItem('theme-mode', mode);
+        localStorage.setItem('theme', mode);
 
 
-        if (mode !== 'system' || (!('theme-mode' in localStorage) && window.matchMedia(`(prefers-color-scheme: ${mode})`).matches)) {
+        if (mode !== 'system' || (!('theme' in localStorage) && window.matchMedia(`(prefers-color-scheme: ${mode})`).matches)) {
             document.documentElement.setAttribute('data-color-mode', mode);
         } else {
             const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
